@@ -85,3 +85,21 @@ export async function setTodoCompleted(id: number, completed: boolean) {
     });
   });
 }
+
+export async function renameTodo(id: number, title: string) {
+  return withDatabase(async (database) => {
+    await database.execute({
+      sql: "UPDATE todos SET title = ? WHERE id = ?",
+      args: [title, id],
+    });
+  });
+}
+
+export async function removeTodo(id: number) {
+  return withDatabase(async (database) => {
+    await database.execute({
+      sql: "DELETE FROM todos WHERE id = ?",
+      args: [id],
+    });
+  });
+}
