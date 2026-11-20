@@ -93,14 +93,17 @@ test("edits and permanently deletes todos after confirmation", async ({ page }) 
     .click();
 
   await row.getByRole("button", { name: `수정: ${originalTitle}` }).click();
-  const editInput = row.getByRole("textbox", { name: "새 할 일 제목" });
+  const editInput = page.getByRole("textbox", { name: "새 할 일 제목" });
+  const editingRow = list.getByRole("listitem").filter({ has: editInput });
   await editInput.fill("   ");
-  await row.getByRole("button", { name: "저장" }).click();
-  await expect(row.getByRole("alert")).toHaveText("할 일 제목을 입력해 주세요.");
-  await expect(row.getByText(originalTitle, { exact: true })).toBeVisible();
+  await editingRow.getByRole("button", { name: "저장" }).click();
+  await expect(editingRow.getByRole("alert")).toHaveText(
+    "할 일 제목을 입력해 주세요.",
+  );
+  await expect(editInput).toHaveValue("   ");
 
   await editInput.fill(updatedTitle);
-  await row.getByRole("button", { name: "저장" }).click();
+  await editingRow.getByRole("button", { name: "저장" }).click();
   row = list.getByRole("listitem").filter({ hasText: updatedTitle });
   await expect(row.getByText(updatedTitle, { exact: true })).toBeVisible();
 
