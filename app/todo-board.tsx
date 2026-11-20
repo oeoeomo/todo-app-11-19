@@ -1,11 +1,123 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { addTodo, toggleTodo, type TodoFormState } from "@/app/actions";
+import {
+  addTodo,
+  deleteTodo,
+  editTodo,
+  toggleTodo,
+  type TodoFormState,
+} from "@/app/actions";
 import type { Todo } from "@/lib/todos";
 
 const initialState: TodoFormState = { error: null };
 type Filter = "all" | "active" | "completed";
+
+function TodoItem({ todo }: { todo: Todo }) {
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(todo.title);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function saveTodo(formData: FormData) {
+    setSaving(true);
+    setError(null);
+    const result = await editTodo(formData);
+    setSaving(false);
+
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setEditing(false);
+    }
+  }
+
+  return (
+    <li className="todo-row">
+      {editing ? (
+        <form action={saveTodo} className="edit-form">
+          <input name="id" type="hidden" value={todo.id} />
+          <label className="visually-hidden" htmlFor={`edit-todo-${todo.id}`}>
+            새 할 일 제목
+          </label>
+          <input
+            autoFocus
+            id={`edit-todo-${todo.id}`}
+            maxLength={200}
+            name="title"
+            onChange={(event) => setTitle(event.target.value)}
+            value={title}
+          />
+          <button className="save-button" disabled={saving} type="submit">
+            저장
+          </button>
+          <button
+            className="cancel-button"
+            onClick={() => {
+              setError(null);
+              setEditing(false);
+              setTitle(todo.title);
+            }}
+            type="button"
+          >
+            취소
+          </button>
+          {error && <span role="alert">{error}</span>}
+        </form>
+      ) : (
+        <>
+          <form action={toggleTodo} className="todo-toggle">
+            <input name="id" type="hidden" value={todo.id} />
+            <label className="todo-label">
+              <input
+                aria-label={
+                  todo.completed
+                    ? `완료 취소: ${todo.title}`
+                    : `완료 처리: ${todo.title}`
+                }
+                className="todo-checkbox"
+                defaultChecked={todo.completed}
+                name="completed"
+                onChange={(event) => event.currentTarget.form?.requestSubmit()}
+                type="checkbox"
+                value="true"
+              />
+              <span className={todo.completed ? "todo-copy is-completed" : "todo-copy"}>
+                {todo.title}
+              </span>
+            </label>
+          </form>
+          <div className="row-actions">
+            <button
+              aria-label={`수정: ${todo.title}`}
+              className="icon-button edit-button"
+              onClick={() => {
+                setTitle(todo.title);
+                setEditing(true);
+              }}
+              type="button"
+            />
+            <form
+              action={deleteTodo}
+              onSubmit={(event) => {
+                if (!window.confirm("이 할 일을 영구 삭제할까요?")) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <input name="id" type="hidden" value={todo.id} />
+              <button
+                aria-label={`삭제: ${todo.title}`}
+                className="icon-button delete-button"
+                type="submit"
+              />
+            </form>
+          </div>
+        </>
+      )}
+    </li>
+  );
+}
 
 export function TodoBoard({ todos }: { todos: Todo[] }) {
   const [state, formAction, pending] = useActionState(addTodo, initialState);
@@ -66,25 +178,7 @@ export function TodoBoard({ todos }: { todos: Todo[] }) {
       {visibleTodos.length ? (
         <ul aria-label="할 일 목록" className="todo-list">
           {visibleTodos.map((todo) => (
-            <li className="todo-row" key={todo.id}>
-              <form action={toggleTodo} className="todo-toggle">
-                <input name="id" type="hidden" value={todo.id} />
-                <label className="todo-label">
-                  <input
-                    aria-label={todo.completed ? "완료 취소" : "완료 처리"}
-                    className="todo-checkbox"
-                    defaultChecked={todo.completed}
-                    name="completed"
-                    onChange={(event) => event.currentTarget.form?.requestSubmit()}
-                    type="checkbox"
-                    value="true"
-                  />
-                  <span className={todo.completed ? "todo-copy is-completed" : "todo-copy"}>
-                    {todo.title}
-                  </span>
-                </label>
-              </form>
-            </li>
+            <TodoItem key={todo.id} todo={todo} />
           ))}
         </ul>
       ) : (
