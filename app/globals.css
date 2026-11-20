@@ -175,16 +175,22 @@ input:focus-visible {
 .todo-row {
   align-items: center;
   border-top: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
   min-height: 58px;
   padding: 4px 2px;
 }
 
-.todo-toggle,
 .todo-label {
   align-items: center;
   display: flex;
-  min-height: inherit;
+  min-height: 58px;
   width: 100%;
+}
+
+.todo-toggle {
+  flex: 1;
+  min-width: 0;
 }
 
 .todo-label {
@@ -208,6 +214,84 @@ input:focus-visible {
   color: #98a29b;
   text-decoration: line-through;
   text-decoration-color: #9eafa4;
+}
+
+.row-actions,
+.row-actions form {
+  display: flex;
+}
+
+.icon-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  color: var(--muted);
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+}
+
+.icon-button:hover {
+  background: #f2f5f2;
+}
+
+.edit-button::before {
+  content: "✎";
+  font-size: 19px;
+}
+
+.delete-button {
+  color: var(--danger);
+}
+
+.delete-button::before {
+  content: "×";
+  font-size: 25px;
+  font-weight: 300;
+}
+
+.edit-form {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.edit-form input:not([type="hidden"]) {
+  background: #f8faf8;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+}
+
+.save-button,
+.cancel-button {
+  background: var(--accent-soft);
+  border: 0;
+  border-radius: 9px;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 11px;
+}
+
+.cancel-button {
+  background: #f2f4f2;
+  color: var(--muted);
+}
+
+.edit-form [role="alert"] {
+  color: var(--danger);
+  font-size: 12px;
+  flex-basis: 100%;
 }
 
 .empty-state {
@@ -295,5 +379,19 @@ input:focus-visible {
   .add-button {
     min-width: 64px;
     padding: 0 12px;
+  }
+
+  .icon-button {
+    height: 34px;
+    width: 31px;
+  }
+
+  .edit-form {
+    gap: 5px;
+  }
+
+  .save-button,
+  .cancel-button {
+    padding: 8px;
   }
 }
