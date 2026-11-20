@@ -6,15 +6,19 @@ import { listTodos } from "@/lib/todos";
 async function TodoContent() {
   await io();
 
-  try {
-    return <TodoBoard todos={await listTodos()} />;
-  } catch {
+  const result = await listTodos()
+    .then((todos) => ({ todos, ok: true as const }))
+    .catch(() => ({ todos: null, ok: false as const }));
+
+  if (!result.ok) {
     return (
       <p className="storage-error" role="alert">
         목록을 불러오지 못했어요. 서버의 Turso 연결 설정을 확인해 주세요.
       </p>
     );
   }
+
+  return <TodoBoard todos={result.todos} />;
 }
 
 export default function Home() {
